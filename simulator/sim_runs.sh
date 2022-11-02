@@ -13,7 +13,7 @@ setups=("n32g4")
 
 
 for setup in ${setups[@]};do
-    cluster_spec="${setup}.csv"
+    cluster_spec="cluster_specs/${setup}.csv"
     for job in ${jobs[@]};do
         job_file="job_files/${job}_job.csv"
         log_folder="log_files/${setup}j${job}"
@@ -26,7 +26,8 @@ for setup in ${setups[@]};do
                 python run_sim.py --cluster_spec=${cluster_spec} --print --scheme=${p} --trace_file=${job_file} --schedule=${s} --log_path=${log_name}
             done
         done
-        echo "Analyze Job"
+        cmd="analyze.py --job_file={$job_file}"
+        echo ${cmd}
         python analyze.py --job_file={$job_file}
     done
 done
