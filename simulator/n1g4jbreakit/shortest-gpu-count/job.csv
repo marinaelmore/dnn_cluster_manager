@@ -1,4 +1,0 @@
-time,job_id,num_gpu,submit_time,start_time,end_time,executed_time,JCT,duration,pending_time,preempt,resume,promote
-164,0,1,0,0,164,164,164,164,0,0,1,0
-180,2,2,53,53,180,127,127,127,0,0,1,0
-378,9,1,252,252,378,126,126,126,0,0,1,0

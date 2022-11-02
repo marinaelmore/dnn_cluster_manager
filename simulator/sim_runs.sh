@@ -15,8 +15,8 @@ setups=("n32g4")
 for setup in ${setups[@]};do
     cluster_spec="${setup}.csv"
     for job in ${jobs[@]};do
-        job_file="${job}_job.csv"
-        log_folder="${setup}j${job}"
+        job_file="job_files/${job}_job.csv"
+        log_folder="log_files/${setup}j${job}"
         mkdir ${log_folder}
         for p in ${placement[@]};do
             for s in ${schedule[@]};do
