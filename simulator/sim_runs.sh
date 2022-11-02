@@ -26,8 +26,8 @@ for setup in ${setups[@]};do
                 python run_sim.py --cluster_spec=${cluster_spec} --print --scheme=${p} --trace_file=${job_file} --schedule=${s} --log_path=${log_name}
             done
         done
-        cmd="analyze.py --job_file={$job_file}"
+        cmd="analyze.py --job_file={$job_file} --log_file={$log_name}"
         echo ${cmd}
-        python analyze.py --job_file={$job_file}
+        python analyze.py --job_file=$job_file --log_file=$log_name
     done
 done
