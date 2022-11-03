@@ -8,7 +8,7 @@ schedule=("dlas-gpu")
 #schedule=("dlas-gpu-05")
 #schedule=("dlas-gpu-1" "dlas-gpu-2" "dlas-gpu-4" "dlas-gpu-8" "dlas-gpu-10" "dlas-gpu-100" "dlas-gpu-1000")
 #schedule=("fifo")
-jobs=("60")
+jobs=("breakit")
 setups=("n32g4")
 
 
