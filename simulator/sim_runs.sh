@@ -31,3 +31,5 @@ for setup in ${setups[@]};do
         python analyze.py --job_file=$job_file --log_file=$log_name
     done
 done
+
+/bin/bash
