@@ -38,7 +38,7 @@ def analyze_job_file():
     # Total Run Time
     start_time = df.iloc[0]['time']
     end_time = df.iloc[len(df)-1]['time']
-    print("*** Total Run Time: %s" %((end_time-start_time)/TIME_CONST))
+    print("\n*** Total Run Time: %s" %((end_time-start_time)/TIME_CONST))
 
     # Max Pending time
     pending_time = df['pending_time']

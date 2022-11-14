@@ -1047,6 +1047,8 @@ def dlas_sim_jobs(gputime=False, solve_starvation=0):
                     j_gt = int(rjob['executed_time'])
                 cur_qid = rjob['q_id']
                 if cur_qid < int(JOBS.num_queue - 1): #not for the last queue
+                    # if the gputime is greater than the queue limit for the
+                    # current queue
                     if j_gt >= JOBS.queue_limit[cur_qid]:
                         rjob['q_id'] = int(cur_qid + 1)
                         JOBS.queues[rjob['q_id']].append(rjob)
