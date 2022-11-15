@@ -956,7 +956,7 @@ def multi_dlas_sim_jobs(gputime=False, solve_starvation=0):
 
     JOBS.completion_check()
 
-def dlas_sim_jobs(gputime=False, solve_starvation=0):
+def dlas_sim_jobs(gputime=False, solve_starvation=0, liar=False):
     '''
     Job's executed time -- priority queue
     Q0:[0, 30min)
@@ -971,6 +971,8 @@ def dlas_sim_jobs(gputime=False, solve_starvation=0):
     '''
     end_events = list()
     next_job_jump = sys.maxsize
+
+    # While
     while (len(JOBS.job_events) + len(JOBS.runnable_jobs))> 0:
         if (len(JOBS.job_events) + len(end_events)) == 0:
             util.print_fn("This cluster is not large enough to run the job")
@@ -1046,6 +1048,7 @@ def dlas_sim_jobs(gputime=False, solve_starvation=0):
                 else:
                     j_gt = int(rjob['executed_time'])
                 cur_qid = rjob['q_id']
+                liar = rjob['liar']
                 if cur_qid < int(JOBS.num_queue - 1): #not for the last queue
                     # if the gputime is greater than the queue limit for the
                     # current queue
