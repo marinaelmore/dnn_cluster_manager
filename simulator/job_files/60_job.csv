@@ -47,7 +47,7 @@ job_id,num_gpu,submit_time,iterations,model_name,duration,interval,liar
 45,2,1347,258,resnet101,121,34,False
 46,1,1381,521,inception3,121,33,False
 47,8,1414,272,alexnet,121,33,False
-48,8,1447,147,inception4,126,24,False
+48,8,1447,147,inception4,126,24,True
 49,120,1471,4861,resnet152,180000000,28,True
 50,4,1499,242,resnet101,126,38,False
 51,1,1537,272,inception4,130,43,False
