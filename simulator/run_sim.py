@@ -1048,12 +1048,11 @@ def dlas_sim_jobs(gputime=False, solve_starvation=0, liar=False):
                 else:
                     j_gt = int(rjob['executed_time'])
                 cur_qid = rjob['q_id']
-                liar = rjob['liar']
+                # To Do - find a way to type cast as bool on read
+                liar = True if rjob['liar']=="True" else False
 
-                # if the gputime is greater than the queue limit for the current queue
-                if j_gt >= JOBS.queue_limit[cur_qid] or liar:
-                    print(j_gt >= JOBS.queue_limit[cur_qid])
-                    print(liar)
+                if ((j_gt >= JOBS.queue_limit[cur_qid]) or liar):
+                    # current queue
                     if cur_qid < int(JOBS.num_queue - 1):#not for the last queue
                         rjob['q_id'] = int(cur_qid + 1)
                         JOBS.queues[rjob['q_id']].append(rjob)
