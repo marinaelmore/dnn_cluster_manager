@@ -20,7 +20,7 @@ job_id,num_gpu,submit_time,iterations,model_name,duration,interval,liar
 18,1,531,3469,alexnet,189,23,False
 19,1,554,892,googlenet,125,29,False
 20,1,583,2275,vgg16,536,28,False
-21,2,611,468,alexnet,126,34,False
+21,1,6100,468,alexnet,1260,34,True
 22,1,645,473,resnet101,123,35,False
 23,8,680,168,resnet152,121,27,False
 24,4,707,864,googlenet,121,26,False
@@ -47,9 +47,9 @@ job_id,num_gpu,submit_time,iterations,model_name,duration,interval,liar
 45,2,1347,258,resnet101,121,34,False
 46,1,1381,521,inception3,121,33,False
 47,8,1414,272,alexnet,121,33,False
-48,8,1447,147,inception4,126,24,True
-49,120,1471,4861,resnet152,180000000,28,True
-50,4,1499,242,resnet101,126,38,False
+48,8,1447,147,inception4,126,24,False
+49,4,1471,41,resnet152,180,28,False
+50,12,1499,242,resnet101,126,38,False
 51,1,1537,272,inception4,130,43,False
 52,4,1580,141,vgg19,121,32,False
 53,1,1612,521,inception3,121,32,False
@@ -58,4 +58,3 @@ job_id,num_gpu,submit_time,iterations,model_name,duration,interval,liar
 56,2,1701,949,googlenet,133,28,False
 57,4,1729,386,resnet50,128,21,False
 58,4,1750,144,inception4,122,29,False
-59,1,1779,525,inception3,122,33,False

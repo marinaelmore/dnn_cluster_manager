@@ -1035,6 +1035,9 @@ def dlas_sim_jobs(gputime=False, solve_starvation=0, liar=False):
 
         #update executed_time
         for rjob in JOBS.runnable_jobs:
+            print(rjob['job_idx'])
+            print(rjob['status'])
+
             if 'RUNNING' == rjob['status']:
                 tmp = int(event_time - rjob['last_check_time'])
                 rjob['total_executed_time'] = int(rjob['total_executed_time'] + tmp)
@@ -1047,17 +1050,27 @@ def dlas_sim_jobs(gputime=False, solve_starvation=0, liar=False):
                     j_gt = int(rjob['executed_time'] * rjob['num_gpu'])
                 else:
                     j_gt = int(rjob['executed_time'])
+
                 cur_qid = rjob['q_id']
                 # To Do - find a way to type cast as bool on read
                 liar = True if rjob['liar']=="True" else False
 
-                if ((j_gt >= JOBS.queue_limit[cur_qid]) or liar):
-                    # current queue
-                    if cur_qid < int(JOBS.num_queue - 1):#not for the last queue
-                        rjob['q_id'] = int(cur_qid + 1)
-                        JOBS.queues[rjob['q_id']].append(rjob)
-                        JOBS.queues[cur_qid].remove(rjob)
-                        print("job %d demote to Q%d" % (rjob['job_idx'], rjob['q_id']))
+                #If job is lying, do not demote
+                if not liar:
+                    if ((j_gt >= JOBS.queue_limit[cur_qid])):
+                        # current queue
+                        if cur_qid < int(JOBS.num_queue - 1):#not for the last queue
+                            rjob['q_id'] = int(cur_qid + 1)
+                            #JOBS.queues[rjob['q_id']].append(rjob)
+                            #JOBS.queues[cur_qid].remove(rjob)
+                            print("job %d demote to Q%d" % (rjob['job_idx'], rjob['q_id']))
+                elif liar:
+                    print("job %d is lying - add to Queue 1" % (rjob['job_idx']))
+                    rjob['q_id'] = 1
+
+                # Add to queue
+                JOBS.queues[rjob['q_id']].append(rjob)
+                JOBS.queues[cur_qid].remove(rjob)
 
                 if FLAGS.schedule == 'dlas-gpu-gittins':
                     # rjob['rank'] = cal_r_gittins_index(JOBS.job_dist_data, j_gt)
@@ -1092,19 +1105,14 @@ def dlas_sim_jobs(gputime=False, solve_starvation=0, liar=False):
                 # util.print_fn('---- job[%d] completed' % rjob['job_idx'])
                 pass
 
-        #push job to their new queue
-        # JOBS.update_priority_queues(gputime)
 
         ''' schedule jobs in each queue '''
+        # TO DO : BREAK THIS WITH LYING JOB
         #empty_cluster resource
         CLUSTER.empty_infra()
         # for "count" placement
         run_jobs = list()
         preempt_jobs = list()
-
-        # if FLAGS.schedule == 'dlas-gpu-gittins':
-        #     q = JOBS.queues[0]
-        #     q.sort(key = lambda e:(e.__getitem__('rank'), e.__getitem__('r_submit_time')), reverse=True)
 
         for queue in JOBS.queues:
             if FLAGS.schedule == 'dlas-gpu-gittins':
@@ -1149,63 +1157,9 @@ def dlas_sim_jobs(gputime=False, solve_starvation=0, liar=False):
             queue.extend(pending_job)
 
 
-        #for fit-job-first, move small running jobs in front of large pending jobs in each queue
-        # for queue in JOBS.queues:
-        #     num_j = len(queue)
-        #     #find the first pending job
-        #     for i in range(num_j):
-        #         if queue[i]['status'] == 'PENDING':
-        #             break
-        #     first_pending_idx = i
-
-        #     #picking running_after_pending_jobs
-        #     run_after_pending = list()
-        #     for j in range(first_pending_idx, num_j):
-        #         if queue[j]['status'] == 'RUNNING':
-        #             run_after_pending.append(queue[j])
-
-        #     #reinsert all those jobs
-        #     for job in run_after_pending:
-        #         queue.remove(job)
-        #     for job in run_after_pending:
-        #         queue.insert(i, job)
-        #         i = int(i + 1)
-
-
-        # for queue in JOBS.queues:
-        #     for job in queue:
-        #         if 'RUNNING' == job['status']:
-        #             if 'placements' in job:
-        #                 del job['placements'][:]
-        #             job['status'] = 'PENDING'
-        #         ret = try_get_job_res(job)
-        #         if True == ret:
-        #             job['status'] = 'RUNNING'
-        #             if 0 == job['start_time'] and 0 != job['submit_time']:
-        #                 job['start_time'] = event_time
-        #         else:
-        #             job['status'] = 'PENDING'
-        #             continue
-
-
-
         #update end events and sort, and get the most recent one
         del end_events[:]
-        # for rjob in JOBS.runnable_jobs:
-        #     if 'RUNNING' == rjob['status']:
-        #         remaining_time = rjob['duration'] - rjob['total_executed_time']
-        #         end_time = int(event_time + remaining_time)
-        #         tmp_dict = util.search_dict_list(end_events, 'time', end_time)
-        #         if tmp_dict == None:
-        #             #not found, add the time into to job_events
-        #             tmp_dict = dict()
-        #             tmp_dict['time'] = end_time
-        #             tmp_dict['end_jobs'] = list()
-        #             tmp_dict['end_jobs'].append(rjob)
-        #             end_events.append(tmp_dict)
-        #         else:
-        #             tmp_dict['end_jobs'].append(rjob)
-        # end_events.sort(key = lambda e:e.__getitem__('time'))
+
         min_end_time = sys.maxsize
         tmp_end_event = dict()
         for rjob in JOBS.runnable_jobs:
