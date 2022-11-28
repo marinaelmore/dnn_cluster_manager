@@ -33,6 +33,7 @@ def analyze_job_file():
         print("I should handle this error here and exit")
         exit(0)
     else:
+        #df = df.sort_by["submt_time"]
         print(df)
 
     # Total Run Time
