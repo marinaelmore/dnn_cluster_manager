@@ -15,8 +15,6 @@ FLAGS = flags.FLAGS
 CLUSTER = cluster.CLUSTER
 JOBS = jobs.JOBS
 
-
-
 class _Log(object):
 
     def __init__(self):
