@@ -54,6 +54,6 @@ GPU cluster simulator
     2. ``jobs.csv``: the job execution information
     3. ``cpu.csv``, ``gpu.csv``, ``memory.csv``, ``network.csv``: those are the utilization details of each resource unit at event points. However, those logs are not accurate under some combinations of placement and scheduler. When ``count`` is chosen, those files are not generated.
 
-    The output logs are defined in ``log.py``; You can modify that file to adjust the output information.
+    The output logs are defined in ``log.py``
 
     We pass the output to ``analyze.py`` that provides simple Pandas analytics on top of the CSV file for added insights.
