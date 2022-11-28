@@ -10,8 +10,8 @@ schedule=("dlas-gpu")
 #schedule=("fifo")
 #jobs=("breakit")
 jobs=("20")
-#setups=("n1g4")
-setups=("n32g4")
+setups=("n1g4")
+#setups=("n32g4")
 
 
 for setup in ${setups[@]};do

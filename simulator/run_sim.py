@@ -1024,6 +1024,7 @@ def dlas_sim_jobs(gputime=False, solve_starvation=0, liar=False):
                 JOBS.queues[e_job['q_id']].remove(e_job)
 
         #for new jobs, append to runnable jobs with pending status
+        # Jobs already sorted when they get here
         if 'start_jobs' in event:
             for s_job in event['start_jobs']:
                 JOBS.move_to_runnable(s_job)
@@ -1044,7 +1045,7 @@ def dlas_sim_jobs(gputime=False, solve_starvation=0, liar=False):
                 rjob['executed_time'] = int(rjob['executed_time'] + tmp) # decide job priority queue
                 rjob['last_check_time'] = event_time
 
-                #check demotion
+                # Get Job GPU Time, If Runtime > G=J_GT then bad
                 j_gt = 0
                 if gputime:
                     j_gt = int(rjob['executed_time'] * rjob['num_gpu'])
@@ -1055,17 +1056,15 @@ def dlas_sim_jobs(gputime=False, solve_starvation=0, liar=False):
                 # To Do - find a way to type cast as bool on read
                 liar = True if rjob['liar']=="True" else False
 
-                #If job is lying, do not demote
+                #If job is lying, do not demote to later queue
                 if not liar:
                     if ((j_gt >= JOBS.queue_limit[cur_qid])):
                         # current queue
                         if cur_qid < int(JOBS.num_queue - 1):#not for the last queue
                             rjob['q_id'] = int(cur_qid + 1)
-                            #JOBS.queues[rjob['q_id']].append(rjob)
-                            #JOBS.queues[cur_qid].remove(rjob)
                             print("job %d demote to Q%d" % (rjob['job_idx'], rjob['q_id']))
                 elif liar:
-                    print("job %d is lying - add to Queue 1" % (rjob['job_idx']))
+                    print("job %d is lying - keep in Queue 1" % (rjob['job_idx']))
                     rjob['q_id'] = 1
 
                 # Add to queue
@@ -1133,8 +1132,6 @@ def dlas_sim_jobs(gputime=False, solve_starvation=0, liar=False):
 
         for job in preempt_jobs:
             job['status'] = 'PENDING'
-            # if job['q_id'] == 0:
-            #     job['preempt'] = int(job['preempt'] + 1)
             job['preempt'] = int(job['preempt'] + 1)
         for job in run_jobs:
             job['status'] = 'RUNNING'
@@ -1155,7 +1152,6 @@ def dlas_sim_jobs(gputime=False, solve_starvation=0, liar=False):
             for job in pending_job:
                 queue.remove(job)
             queue.extend(pending_job)
-
 
         #update end events and sort, and get the most recent one
         del end_events[:]
@@ -1190,6 +1186,7 @@ def dlas_sim_jobs(gputime=False, solve_starvation=0, liar=False):
                         next_job_jump = jump_time
 
             elif 'PENDING' == rjob['status']: # when pending job will be push back to Q0
+                print("here")
                 if solve_starvation > 0 and rjob['q_id'] > 0 and rjob['total_executed_time'] and rjob['executed_time'] > 0:
                     diff_time = int(rjob['executed_time'] * solve_starvation - rjob['last_pending_time'])
                     if diff_time > 0:
