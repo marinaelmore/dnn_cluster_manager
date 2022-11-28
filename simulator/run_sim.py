@@ -1036,9 +1036,6 @@ def dlas_sim_jobs(gputime=False, solve_starvation=0, liar=False):
 
         #update executed_time
         for rjob in JOBS.runnable_jobs:
-            print(rjob['job_idx'])
-            print(rjob['status'])
-
             if 'RUNNING' == rjob['status']:
                 tmp = int(event_time - rjob['last_check_time'])
                 rjob['total_executed_time'] = int(rjob['total_executed_time'] + tmp)
@@ -1186,7 +1183,6 @@ def dlas_sim_jobs(gputime=False, solve_starvation=0, liar=False):
                         next_job_jump = jump_time
 
             elif 'PENDING' == rjob['status']: # when pending job will be push back to Q0
-                print("here")
                 if solve_starvation > 0 and rjob['q_id'] > 0 and rjob['total_executed_time'] and rjob['executed_time'] > 0:
                     diff_time = int(rjob['executed_time'] * solve_starvation - rjob['last_pending_time'])
                     if diff_time > 0:
