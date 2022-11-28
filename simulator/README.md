@@ -1,21 +1,14 @@
 GPU cluster simulator
 ===
-1. What's included in this folder ?
+1. What Did We Modify:
     1. ``run_sim.py``: The main function script of this simulator
-    2. ``flags.py``: Input parser ``class _FlagValues``
-    3. ``cluster.py``: GPU cluster ``class _Cluster``; there are multiple switches under the cluster. The infrastructure hierarchy looks like `cluster->switch->node`.
-    4. ``switch.py``: Network switch ``class _Switch`` under the cluster. Each switch includes all the server nodes connected under it. From the resource perspective, a switch means a group of nodes.
-    5. ``node.py``: GPU server node ``class _Node`` with resources including CPU, memory, and GPUs
-    5. ``jobs.py``: define ``class _TFJobs`` as the collection of DL jobs, and the subclass ``class g_job`` for individual DL job with GPU
-    5. ``models.py``: Model information. Based on the given model, get the memory usage (CPU, GPU) and tensor-size (in MB) distribution of the model (10 CNN models from Tensorflow-benchmark)
-    6. ``log.py``: Log function for the simulator
-    7. ``util.py``: Utility funcitons
-    7. ``*_job.csv``: Job trace file, with the following necessary fields: ``job_id,num_gpu,submit_time,iterations,model_name,duration,interval``
-    8. ``nxxgxx.csv`` and ``cluster_spec.csv``:  Cluster spec file, including the fields: ``num_switch,num_node_p_switch,num_gpu_p_node,num_cpu_p_node,mem_p_node``
-    9. ``yarn-gputxxxx.csv``: The GPU-time distribution of jobs from YARN. The jobs are sampled for every ``xxxx``seconds (1000, 5000, 10000). This is needed for ``Gittins Index`` policy.
+    2. ``analyze.py``: Added and analysis file
+    3. ``*_job.csv``: Job trace file that was modified to add the lying field. Jobs have the following necessary fields: ``job_id,num_gpu,submit_time,iterations,model_name,duration,interval,liar``
+    4. ``log.py``: Log function for the simulator, we modified to provide more robust logging
+    5. ``nxxgxx.csv`` and ``cluster_spec.csv``:  Cluster spec file, including the fields: ``num_switch,num_node_p_switch,num_gpu_p_node,num_cpu_p_node,mem_p_node``
 
 
-2. Before the exection, what's needed?
+2. Before the execution, what's needed?
     1. Infrastructure details
     Define the hierarchy and resource capacity of the infrastructure in ``cluster_spec.csv``. For example, we have a cluster with 4 racks (switches). Under each rack (switch), there are 32 nodes. And each node has 128 CPU cores, 256 GB memory, and 8 GPUs. Then ``cluster_spec.csv`` will look like this:
         ```csv
@@ -32,10 +25,10 @@ GPU cluster simulator
        * ``duration``: how long this job will run. This information is used to generate job completion event by the simulator.
        * ``interval``: job submission interval from this job to the next job
 
-
 3. How to run the simulator?
 
-    In terminal, run ```bash
+    In terminal, run
+    ```bash
         ./sim_runs.sh
     ```
     This executes the following command with the required options:
