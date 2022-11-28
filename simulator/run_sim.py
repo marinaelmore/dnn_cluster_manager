@@ -279,9 +279,7 @@ def dlas_sim_jobs(gputime=False, solve_starvation=0, liar=False):
     Q3:[2h, 00)
 
     in each queue, jobs are scheduled in fit-first with FIFO
-    how to avoid starvation?
 
-    TODO:  2. add move_back for avoiding starvation
     '''
     end_events = list()
     next_job_jump = sys.maxsize
@@ -386,6 +384,7 @@ def dlas_sim_jobs(gputime=False, solve_starvation=0, liar=False):
                     # rjob['rank'] = cal_r_gittins_index(JOBS.job_dist_data, j_gt)
                     rjob['rank'] = get_gittins_index(j_gt)
 
+            # For jobs that are in queue 0
             elif 'PENDING' == rjob['status']:
                 tmp = int(event_time - rjob['last_check_time'])
                 rjob['last_check_time'] = event_time
@@ -417,16 +416,18 @@ def dlas_sim_jobs(gputime=False, solve_starvation=0, liar=False):
 
 
         ''' schedule jobs in each queue '''
-        # TO DO : BREAK THIS WITH LYING JOB
+        # This breaks when jobs lie!
+
         #empty_cluster resource
         CLUSTER.empty_infra()
-        # for "count" placement
         run_jobs = list()
         preempt_jobs = list()
 
         for queue in JOBS.queues:
-            if FLAGS.schedule == 'dlas-gpu-gittins':
-                queue.sort(key = lambda e:(e.__getitem__('rank'), e.__getitem__('r_submit_time')), reverse=True)
+
+            # Do lying jobs first, because they're lying!
+            queue.sort(key = lambda e : (e.__getitem__('liar')=="True"), reverse=True)
+
             for job in queue:
                 if CLUSTER.free_gpu >= job['num_gpu']:
                     #should run
@@ -453,13 +454,10 @@ def dlas_sim_jobs(gputime=False, solve_starvation=0, liar=False):
 
         #sort based on the job start time
         for queue in JOBS.queues:
-            #job there are many students
             pending_job = list()
             for job in queue:
-                # if sys.maxsize == job['start_time'] and job['status'] == 'PENDING':
                 if job['status'] == 'PENDING':
                     pending_job.append(job)
-                    # print(job['job_idx'])
             for job in pending_job:
                 queue.remove(job)
             queue.extend(pending_job)
