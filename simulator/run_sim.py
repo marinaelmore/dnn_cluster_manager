@@ -17,9 +17,8 @@ import cluster
 import log
 import lp
 
-# import hosts
-# import placement_scheme as scheme
-# import cmd
+import pandas as pd
+import numpy as np
 
 #parse input arguments
 flags.DEFINE_string('trace_file', 'tf_job.csv',
@@ -52,13 +51,6 @@ flags.DEFINE_string('schedule', 'fifo',
                 7.dlas, discretized las
                 8.dlas-gpu, dlas using gpu time
                 Default is fifo''')
-# flags.DEFINE_string('scheme', 'random',
-#                 ''' TF job placement scheme (PS, and workers).
-#                     Schemes:
-#                         1.random: randomly place PS and workers across all hosts
-#                         2.none: all jobs have the same placement (e.g. every ps0 on Node1)
-#                         3.half_random: for each job, still one ps/worker per machine, placements are random
-#                     Default scheme is random ''')
 flags.DEFINE_integer('num_switch', 1,
                 '''Part of cluster spec: the number of switches in this cluster, default is 1''')
 flags.DEFINE_integer('num_node_p_switch', 32,
@@ -81,6 +73,8 @@ flags.DEFINE_boolean('print', False,
 flags.DEFINE_boolean('flush_stdout', True,
                 '''Flush stdout, default is True''')
 flags.DEFINE_version('0.1')
+
+flags.DEFINE_boolean('fss', False, "Run cluster with FSS")
 
 
 FLAGS = flags.FLAGS
@@ -270,7 +264,23 @@ def one_queue_fifo_sim_jobs():
 
         LOG.checkpoint(event_time)
 
-def dlas_sim_jobs(gputime=False, solve_starvation=0, liar=False):
+
+def append_fss_to_job():
+    users_file = LOG.users_file
+
+    df = pd.read_csv(users_file)
+    user_ids = df['user_id']
+
+    for i in range(0, len(JOBS.job_events)):
+        for r in range(0,len(JOBS.job_events[i]['start_jobs'])):
+            job_user_id = JOBS.job_events[i]['start_jobs'][r]['user_id']
+            if job_user_id in user_ids:
+                JOBS.job_events[i]['start_jobs'][r]['fss'] = df.loc[df['user_id'] == job_user_id]['fss'].item()
+            else:
+                JOBS.job_events[i]['start_jobs'][r]['fss'] = 0
+    return df
+
+def dlas_sim_jobs(gputime=False, solve_starvation=0, fss=FLAGS.fss):
     '''
     Job's executed time -- priority queue
     Q0:[0, 30min)
@@ -283,6 +293,19 @@ def dlas_sim_jobs(gputime=False, solve_starvation=0, liar=False):
     '''
     end_events = list()
     next_job_jump = sys.maxsize
+
+    if fss:
+        fss_df = append_fss_to_job()
+        queue_1 = float(fss_df['fss'].quantile(q=0.25))
+        queue_2 = float(fss_df['fss'].quantile(q=0.50))
+        queue_3 = float(fss_df['fss'].quantile(q=0.75))
+
+
+    for job in JOBS.job_events:
+        for sjob in job['start_jobs']:
+            print(sjob['user_id'])
+            print(sjob['fss'])
+
 
     # While
     while (len(JOBS.job_events) + len(JOBS.runnable_jobs))> 0:
@@ -365,13 +388,28 @@ def dlas_sim_jobs(gputime=False, solve_starvation=0, liar=False):
                 # To Do - find a way to type cast as bool on read
                 liar = True if rjob['liar']=="True" else False
 
-                #If job is lying, do not demote to later queue
-                if not liar:
+                if fss:
+                    fair_share_score = float(rjob['fss'])
+
+                    #Check FSS against quantile
+                    if fair_share_score in np.arange(0, queue_1):
+                        rjob['q_id'] = 0
+                    if fair_share_score in np.arange(queue_1,queue_2):
+                        rjob['q_id'] = 1
+                    if fair_share_score in np.arange(queue_2, queue_3):
+                        rjob['q_id'] = 2
+                    if fair_share_score >= queue_3:
+                        rjob['q_id'] = 2
+
+                    print("job %d assigned to Q%d" % (rjob['job_idx'], rjob['q_id']))
+
+                elif not liar:
                     if ((j_gt >= JOBS.queue_limit[cur_qid])):
                         # current queue
                         if cur_qid < int(JOBS.num_queue - 1):#not for the last queue
                             rjob['q_id'] = int(cur_qid + 1)
                             print("job %d demote to Q%d" % (rjob['job_idx'], rjob['q_id']))
+                #If job is lying, do not demote to later queue
                 elif liar:
                     print("job %d is lying - keep in Queue 1" % (rjob['job_idx']))
                     rjob['q_id'] = 1
