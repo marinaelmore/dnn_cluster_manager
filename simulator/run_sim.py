@@ -390,9 +390,9 @@ def dlas_sim_jobs(gputime=False, solve_starvation=0, fss=FLAGS.fss):
                     if fair_share_score <= queue_1:
                         rjob['q_id'] = 0
                     if fair_share_score <= queue_3:
-                        rjob['q_id'] = 1
+                        rjob['q_id'] = 0
                     if fair_share_score > queue_3:
-                        rjob['q_id'] = 2
+                        rjob['q_id'] = 1
 
                     print("job %d assigned to Q%d" % (rjob['job_idx'], rjob['q_id']))
 
@@ -404,8 +404,8 @@ def dlas_sim_jobs(gputime=False, solve_starvation=0, fss=FLAGS.fss):
                             print("job %d demote to Q%d" % (rjob['job_idx'], rjob['q_id']))
                 #If job is lying, do not demote to later queue
                 elif liar:
-                    print("job %d is lying - keep in Queue 1" % (rjob['job_idx']))
-                    rjob['q_id'] = 1
+                    print("job %d is lying - keep in Queue 0" % (rjob['job_idx']))
+                    rjob['q_id'] = 0
 
                 # Add to queue
                 JOBS.queues[rjob['q_id']].append(rjob)
