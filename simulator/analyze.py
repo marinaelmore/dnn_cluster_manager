@@ -35,16 +35,15 @@ def analyze_job_file():
         exit(0)
 
     # Total Run Time
-    start_time = df.iloc[0]['time']
-    end_time = df.iloc[len(df)-1]['time']
+    start_time = df['start_time'].min()
+    end_time = df['end_time'].max()
     total_run_time = end_time-start_time
 
     # Max Pending time
-    pending_time = df['pending_time']
+    pending_time = df['pending_time'].max()
 
     # Max JCT
-    jct_time = df['JCT']
-
+    jct_time = df['JCT'].max()
 
     # Determining Fair Share Score
     df["actual_util"] = df.executed_time/(total_run_time*4)
@@ -64,8 +63,8 @@ def analyze_job_file():
         df.to_csv(file_path,encoding='utf-8', index=False,columns=['user_id', 'fss'])
 
     print(df)
-    print("*** Max JCT: %s" %(max(jct_time)/TIME_CONST))
-    print("*** Max Pending Time: %s" %(max(pending_time)/TIME_CONST))
+    print("*** Max JCT: %s" %(jct_time/TIME_CONST))
+    print("*** Max Pending Time: %s" %(pending_time/TIME_CONST))
     print("\n*** Total Run Time: %s" %((end_time-start_time)/TIME_CONST))
 
 if __name__ == '__main__':

@@ -272,6 +272,7 @@ def append_fss_to_job():
     user_ids = df['user_id']
 
     for i in range(0, len(JOBS.job_events)):
+
         for r in range(0,len(JOBS.job_events[i]['start_jobs'])):
             job_user_id = JOBS.job_events[i]['start_jobs'][r]['user_id']
             if job_user_id in user_ids:
@@ -299,13 +300,6 @@ def dlas_sim_jobs(gputime=False, solve_starvation=0, fss=FLAGS.fss):
         queue_1 = float(fss_df['fss'].quantile(q=0.25))
         queue_2 = float(fss_df['fss'].quantile(q=0.50))
         queue_3 = float(fss_df['fss'].quantile(q=0.75))
-
-
-    for job in JOBS.job_events:
-        for sjob in job['start_jobs']:
-            print(sjob['user_id'])
-            print(sjob['fss'])
-
 
     # While
     while (len(JOBS.job_events) + len(JOBS.runnable_jobs))> 0:
@@ -369,6 +363,7 @@ def dlas_sim_jobs(gputime=False, solve_starvation=0, fss=FLAGS.fss):
             #pop start event
             JOBS.job_events.pop(0)
 
+
         #update executed_time
         for rjob in JOBS.runnable_jobs:
             if 'RUNNING' == rjob['status']:
@@ -392,14 +387,12 @@ def dlas_sim_jobs(gputime=False, solve_starvation=0, fss=FLAGS.fss):
                     fair_share_score = float(rjob['fss'])
 
                     #Check FSS against quantile
-                    if fair_share_score in np.arange(0, queue_1):
+                    if fair_share_score <= queue_1:
                         rjob['q_id'] = 0
-                    if fair_share_score in np.arange(queue_1,queue_2):
+                    if fair_share_score <= queue_3:
+                        rjob['q_id'] = 0
+                    if fair_share_score > queue_3:
                         rjob['q_id'] = 1
-                    if fair_share_score in np.arange(queue_2, queue_3):
-                        rjob['q_id'] = 2
-                    if fair_share_score >= queue_3:
-                        rjob['q_id'] = 2
 
                     print("job %d assigned to Q%d" % (rjob['job_idx'], rjob['q_id']))
 
@@ -411,8 +404,8 @@ def dlas_sim_jobs(gputime=False, solve_starvation=0, fss=FLAGS.fss):
                             print("job %d demote to Q%d" % (rjob['job_idx'], rjob['q_id']))
                 #If job is lying, do not demote to later queue
                 elif liar:
-                    print("job %d is lying - keep in Queue 1" % (rjob['job_idx']))
-                    rjob['q_id'] = 1
+                    print("job %d is lying - keep in Queue 0" % (rjob['job_idx']))
+                    rjob['q_id'] = 0
 
                 # Add to queue
                 JOBS.queues[rjob['q_id']].append(rjob)
