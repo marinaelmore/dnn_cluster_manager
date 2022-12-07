@@ -380,9 +380,6 @@ def dlas_sim_jobs(gputime=False, solve_starvation=0, liar=False):
                 JOBS.queues[rjob['q_id']].append(rjob)
                 JOBS.queues[cur_qid].remove(rjob)
 
-                if FLAGS.schedule == 'dlas-gpu-gittins':
-                    # rjob['rank'] = cal_r_gittins_index(JOBS.job_dist_data, j_gt)
-                    rjob['rank'] = get_gittins_index(j_gt)
 
             # For jobs that are in queue 0
             elif 'PENDING' == rjob['status']:
@@ -400,14 +397,6 @@ def dlas_sim_jobs(gputime=False, solve_starvation=0, liar=False):
                         JOBS.queues[rjob['q_id']].remove(rjob)
                         rjob['q_id'] = 0
                         rjob['promote'] = int(rjob['promote'] + 1)
-
-                if FLAGS.schedule == 'dlas-gpu-gittins':
-                    if gputime:
-                        j_gt = int(rjob['executed_time'] * rjob['num_gpu'])
-                    else:
-                        j_gt = int(rjob['executed_time'])
-                    # rjob['rank'] = cal_r_gittins_index(JOBS.job_dist_data, j_gt)
-                    rjob['rank'] = get_gittins_index(j_gt)
 
             elif 'END' == rjob['status']: # won't happen
                 JOBS.runnable_jobs.remove(rjob)

@@ -33,6 +33,7 @@ class _Log(object):
         self.mem_list = list()
 
     def init_log(self):
+        print("Init runs")
         self.log_path = FLAGS.log_path
         if self.log_path[-1] == '/':
             self.log_path = self.log_path[:-1]
@@ -49,6 +50,8 @@ class _Log(object):
 
         self.log_file = self.log_path + '/cluster.csv'
         self.log_job = self.log_path + '/job.csv'
+        self.users_file = self.log_path + '/users.csv'
+
         if FLAGS.scheme != 'count':
             self.log_cpu = self.log_path + '/cpu.csv'
             self.log_gpu = self.log_path + '/gpu.csv'
@@ -101,7 +104,7 @@ class _Log(object):
             log_writer.writerow(['time', '1-GPU', '2-GPU', '4-GPU', '8-GPU', '12-GPU', '16-GPU', '24-GPU', '32-GPU'])
         else:
             if FLAGS.scheme == 'count':
-                log_writer.writerow(['time', 'job_id', 'num_gpu', 'submit_time', 'start_time', 'end_time', 'executed_time', 'JCT', 'duration', 'pending_time', 'preempt', 'resume', 'promote'])
+                log_writer.writerow(['time', 'job_id', 'num_gpu', 'submit_time', 'start_time', 'end_time', 'executed_time', 'JCT', 'duration', 'pending_time', 'preempt', 'resume', 'promote', 'user_id', 'liar'])
             else:
                 log_writer.writerow(['time', 'job_id', 'num_gpu', 'submit_time', 'start_time', 'end_time', 'executed_time', 'JCT', 'duration', 'pending_time', 'preempt', 'promote'])
         fd.close()
@@ -188,30 +191,6 @@ class _Log(object):
             # mem.append(event_time)
             for switch in CLUSTER.switch_list:
                 for node in switch.node_list:
-                    # free_gpu = node.check_free_gpus()
-                    # #updage gpu
-                    # idle_gpu += free_gpu
-                    # busy_gpu += node.num_gpu - free_gpu
-                    # #update node
-                    # if free_gpu == node.num_gpu:
-                    #     idle_node += 1
-                    # elif free_gpu > 0:
-                    #     busy_node += 1
-                    # elif free_gpu == 0:
-                    #     full_node += 1
-
-
-                    # #cpu
-                    # free_cpu = node.check_free_cpus()
-                    # busy_cpu = node.num_cpu - free_cpu
-                    # b_gpu = node.num_gpu - free_gpu
-
-                    # #network in or out
-                    # cpu.append(busy_cpu)
-                    # gpu.append(b_gpu)
-                    # net.append(node.network_in)
-                    # net.append(node.network_out)
-
                     used_mem = FLAGS.mem_p_node - node.free_mem + 2
                     if used_mem > 2:
                         mem.append(used_mem)
@@ -230,9 +209,6 @@ class _Log(object):
                     idx_95 = int(len_m - 1)
 
                 idx_med = (len_m - 1) // 2
-            # idx_99 = 3
-            # idx_95 = 13
-            # idx_med = 128
             if len_m > 0:
                 rs_mem = sorted(mem, reverse=True)
                 mem_result.append(event_time)
@@ -275,7 +251,6 @@ class _Log(object):
 
         if len(self.log_list) >= 1:
             self.dump_all_logs()
-
 
 
     def checkpoint_multi_dlas_gpu(self, event_time):
@@ -342,10 +317,11 @@ class _Log(object):
         executed_time = job['end_time'] - job['start_time']
         jct = int(job['end_time'] - job['submit_time'])
         if FLAGS.scheme == 'count':
-            self.job_list.append([event_time, job['job_id'], job['num_gpu'], job['submit_time'], job['start_time'], job['end_time'], executed_time, jct, job['duration'], job['pending_time'], job['preempt'], job['resume'], job['promote']])
+            self.job_list.append([event_time, job['job_id'], job['num_gpu'], job['submit_time'], job['start_time'], job['end_time'], executed_time, jct, job['duration'], job['pending_time'], job['preempt'], job['resume'], job['promote'], job['user_id'], job['liar']])
         else:
             self.job_list.append([event_time, job['job_id'], job['num_gpu'], job['submit_time'], job['start_time'], job['end_time'], executed_time, jct, job['duration'], job['pending_time'], job['preempt'], job['promote']])
 
+            print(self.job_list)
 
         if len(self.job_list) >= 1:
             self.dump_job_logs()

@@ -1,6 +1,7 @@
 import pandas as pd
 import argparse
 from os.path import exists
+import log
 
 parser = argparse.ArgumentParser()
 parser.add_argument("-lf", "--log_file", help="Log File")
@@ -32,22 +33,40 @@ def analyze_job_file():
     if df.empty:
         print("I should handle this error here and exit")
         exit(0)
-    else:
-        #df = df.sort_by["submt_time"]
-        print(df)
 
     # Total Run Time
     start_time = df.iloc[0]['time']
     end_time = df.iloc[len(df)-1]['time']
-    print("\n*** Total Run Time: %s" %((end_time-start_time)/TIME_CONST))
+    total_run_time = end_time-start_time
 
     # Max Pending time
     pending_time = df['pending_time']
-    print("*** Max Pending Time: %s" %(max(pending_time)/TIME_CONST))
 
     # Max JCT
     jct_time = df['JCT']
+
+
+    # Determining Fair Share Score
+    df["actual_util"] = df.executed_time/(total_run_time*4)
+    df["expected_util"] = df.duration/(total_run_time*4)
+    df["delta_util"] = df.actual_util - df.expected_util
+
+    # Average Util
+    average_util = df['actual_util'].mean()
+    sum_delta = df['delta_util'].sum()
+
+    # Fair Share Score
+    df['fss'] = (df.delta_util/sum_delta)*0.3+(df.actual_util/average_util)*0.7
+
+    # Log User Behavior
+    if 'log_file' in args and args.log_file:
+        file_path = "%s/users.csv" %args.log_file
+        df.to_csv(file_path,encoding='utf-8', index=False,columns=['user_id', 'fss'])
+
+    print(df)
     print("*** Max JCT: %s" %(max(jct_time)/TIME_CONST))
+    print("*** Max Pending Time: %s" %(max(pending_time)/TIME_CONST))
+    print("\n*** Total Run Time: %s" %((end_time-start_time)/TIME_CONST))
 
 if __name__ == '__main__':
     analyze_job_file()
