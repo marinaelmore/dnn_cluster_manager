@@ -1,11 +1,12 @@
-GPU cluster simulator
+CS243 Cluster Scheduler based on Tiresias and THEMIS
+
 ===
 1. What Did We Modify:
     1. ``run_sim.py``: The main function script of this simulator
     2. ``analyze.py``: Added and analysis file
     3. ``*_job.csv``: Job trace file that was modified to add the lying field. Jobs have the following necessary fields: ``job_id,num_gpu,submit_time,iterations,model_name,duration,interval,liar``
     4. ``log.py``: Log function for the simulator, we modified to provide more robust logging
-    5. ``nxxgxx.csv`` and ``cluster_spec.csv``:  Cluster spec file, including the fields: ``num_switch,num_node_p_switch,num_gpu_p_node,num_cpu_p_node,mem_p_node``
+    5. ``cluster_spec.csv``:  Cluster spec file, including the fields: ``num_switch,num_node_p_switch,num_gpu_p_node,num_cpu_p_node,mem_p_node``
 
 
 2. Before the execution, what's needed?
@@ -33,13 +34,14 @@ GPU cluster simulator
     ```
     This executes the following command with the required options:
     ```bash
-    python3 run_sim.py --cluster_spec=n32g4.csv --print --scheme=yarn --trace_file=480_job.csv --schedule=dlas --log_path=test_1
+    python3 run_sim.py --cluster_spec=n32g4.csv --print --scheme=yarn --trace_file=480_job.csv --schedule=dlas --log_path=test_1 fss=True
     ```
     The following options are necessary and set within the shell file:
     * ``--cluster_spec``: infrastructure spec file
     * ``--trace_file``: job trace
     * ``--scheme``: **placement scheme**
     * ``--schedule``: **scheduler**
+    * ``--fss``: **Run with FSS scheduling**
 
 4. What are the placement and scheduling algorithms provided?
 
@@ -48,12 +50,13 @@ GPU cluster simulator
     *Scheduling*
     * ``fifo`` : We use FIFO as baseline
     * ``dlas-gpu``: discretized LAS (gpu-time-based)
+    * ``fss``: scheduling with fair share score from a weighted average of the delta of your expected utilization and actual utilization and your utilization compared to everyone else
 
 5. What's the output?
     1. ``cluster.csv``: cluster-level resource utilization info at each event point
     2. ``jobs.csv``: the job execution information
-    3. ``cpu.csv``, ``gpu.csv``, ``memory.csv``, ``network.csv``: those are the utilization details of each resource unit at event points. However, those logs are not accurate under some combinations of placement and scheduler. When ``count`` is chosen, those files are not generated.
+    3. ``users.csv``: the FSS scoring for the user
 
     The output logs are defined in ``log.py``
 
-    We pass the output to ``analyze.py`` that provides simple Pandas analytics on top of the CSV file for added insights.
+    We pass the output to ``analyze.py`` that does Pandas analytics on top of the CSV file for added insights.
