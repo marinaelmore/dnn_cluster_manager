@@ -59,7 +59,7 @@ def analyze_job_file():
 
     # Log User Behavior
     if 'log_file' in args and args.log_file:
-        user_file_path = "%s/users.csv" %args.log_file
+        user_file_path = "log_files/users.csv"
         job_file_path = "%s/job_extended.csv" %args.log_file
         df.to_csv(user_file_path,encoding='utf-8', index=False,columns=['user_id', 'fss'])
         df.to_csv(job_file_path,encoding='utf-8', index=False)

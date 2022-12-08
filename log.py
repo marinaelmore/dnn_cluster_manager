@@ -50,7 +50,7 @@ class _Log(object):
 
         self.log_file = self.log_path + '/cluster.csv'
         self.log_job = self.log_path + '/job.csv'
-        self.users_file = self.log_path + '/users.csv'
+        self.users_file = 'log_files/users.csv'
 
         if FLAGS.scheme != 'count':
             self.log_cpu = self.log_path + '/cpu.csv'
