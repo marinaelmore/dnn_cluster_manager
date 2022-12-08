@@ -59,13 +59,16 @@ def analyze_job_file():
 
     # Log User Behavior
     if 'log_file' in args and args.log_file:
-        file_path = "%s/users.csv" %args.log_file
-        df.to_csv(file_path,encoding='utf-8', index=False,columns=['user_id', 'fss'])
+        user_file_path = "%s/users.csv" %args.log_file
+        job_file_path = "%s/job_extended.csv" %args.log_file
+        df.to_csv(user_file_path,encoding='utf-8', index=False,columns=['user_id', 'fss'])
+        df.to_csv(job_file_path,encoding='utf-8', index=False)
 
     print(df)
     print("*** Max JCT: %s" %(jct_time/TIME_CONST))
     print("*** Max Pending Time: %s" %(pending_time/TIME_CONST))
     print("\n*** Total Run Time: %s" %((end_time-start_time)/TIME_CONST))
+
 
 if __name__ == '__main__':
     analyze_job_file()
