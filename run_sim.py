@@ -76,7 +76,6 @@ flags.DEFINE_version('0.1')
 
 flags.DEFINE_boolean('fss', False, "Run cluster with FSS")
 
-
 FLAGS = flags.FLAGS
 
 #prepare JOBS list
@@ -240,12 +239,6 @@ def one_queue_fifo_sim_jobs():
                 if ret == True:
                     ''' if remove_from_pending, then will miss the next p_job in the list '''
                     new_start_list.append(p_job)
-                    #if job is migratable, add into migratable job list
-                    # JOBS.add_migratable(p_job)
-                    # JOBS.remove_from_pending(p_job, event_time)
-                    # JOBS.add_job_end_event(p_job)
-                    # util.print_fn('----job[%d] starts from pending' % p_job['job_idx'])
-                    # JOBS.read_job_info(p_job['job_idx'])
                 else:
                     break
             for ns_job in new_start_list:
@@ -254,13 +247,9 @@ def one_queue_fifo_sim_jobs():
                 util.print_fn('----job[%d] starts from pending' % ns_job['job_idx'])
 
 
-        #sort pending jobs based on the num_gpu
-        #JOBS.pending_jobs.sort(key = lambda e:e.__getitem__('num_gpu'))
-
         #remove time_event
         JOBS.job_events.pop(0)
         JOBS.job_events.sort(key = lambda e:e.__getitem__('time'))
-        # JOBS.print_job_events()
 
         LOG.checkpoint(event_time)
 
@@ -297,9 +286,8 @@ def dlas_sim_jobs(gputime=False, solve_starvation=0, fss=FLAGS.fss):
 
     if fss:
         fss_df = append_fss_to_job()
-        queue_1 = float(fss_df['fss'].quantile(q=0.25))
-        queue_2 = float(fss_df['fss'].quantile(q=0.50))
-        queue_3 = float(fss_df['fss'].quantile(q=0.75))
+        queue_1 = float(fss_df['fss'].quantile(q=0.3))
+        queue_2 = float(fss_df['fss'].quantile(q=0.8))
 
     # While
     while (len(JOBS.job_events) + len(JOBS.runnable_jobs))> 0:
@@ -327,11 +315,9 @@ def dlas_sim_jobs(gputime=False, solve_starvation=0, fss=FLAGS.fss):
             event = end_event
         elif end_time > start_time:
             event_time = start_time
-            # event = JOBS.job_events.pop(0)
             event = start_event
         elif end_time == start_time and end_time != sys.maxsize:
             event_time = start_time
-            # event = JOBS.job_events.pop(0)
             event = start_event
             event['end_jobs'] = end_events[0]['end_jobs']
 
@@ -389,10 +375,10 @@ def dlas_sim_jobs(gputime=False, solve_starvation=0, fss=FLAGS.fss):
                     #Check FSS against quantile
                     if fair_share_score <= queue_1:
                         rjob['q_id'] = 0
-                    if fair_share_score <= queue_3:
-                        rjob['q_id'] = 0
-                    if fair_share_score > queue_3:
+                    if fair_share_score > queue_1 and fair_share_score <= queue_2:
                         rjob['q_id'] = 1
+                    if fair_share_score > queue_2:
+                        rjob['q_id'] = 2
 
                     print("job %d assigned to Q%d" % (rjob['job_idx'], rjob['q_id']))
 
