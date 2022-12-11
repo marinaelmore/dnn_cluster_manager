@@ -1,4 +1,4 @@
-CS243 Cluster Scheduler based on Tiresias and THEMIS
+Fairesias: A CS243 Cluster Scheduler based on Tiresias and inspired by THEMIS
 
 ===
 1. What Did We Modify:
