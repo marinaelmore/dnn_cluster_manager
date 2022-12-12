@@ -67,7 +67,7 @@ def analyze_job_file():
     print(df)
     print("*** Max JCT: %s" %(jct_time/TIME_CONST))
     print("*** Max Pending Time: %s" %(pending_time/TIME_CONST))
-    print("\n*** Total Run Time: %s" %((end_time-start_time)/TIME_CONST))
+    print("*** Total Run Time: %s" %((end_time-start_time)/TIME_CONST))
 
 
 if __name__ == '__main__':

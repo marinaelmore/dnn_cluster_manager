@@ -6,8 +6,8 @@ schedule=("dlas-gpu")
 jobs=("20")
 #jobs=("60")
 #jobs=("breakit")
-setups=("n1g4")
-#setups=("n32g4")
+#setups=("n1g4")
+setups=("n32g4")
 
 
 for setup in ${setups[@]};do
@@ -21,7 +21,7 @@ for setup in ${setups[@]};do
                 log_name="${log_folder}/${s}-${p}"
                 cmd="python run_sim.py --cluster_spec=${cluster_spec} --print --scheme=${p} --trace_file=${job_file} --schedule=${s} --log_path=${log_name}"
                 echo ${cmd}
-                python run_sim.py --cluster_spec=${cluster_spec} --print --scheme=${p} --trace_file=${job_file} --schedule=${s} --log_path=${log_name} --fss=True
+                python run_sim.py --cluster_spec=${cluster_spec} --print --scheme=${p} --trace_file=${job_file} --schedule=${s} --log_path=${log_name} --fss=False
             done
         done
         cmd="analyze.py --job_file={$job_file} --log_file={$log_name}"
