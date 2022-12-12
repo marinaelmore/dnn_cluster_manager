@@ -3,7 +3,7 @@ Fairesias: A CS243 Cluster Scheduler based on Tiresias and inspired by THEMIS
 ===
 1. What Did We Modify:
     1. ``run_sim.py``: The main function script of this simulator
-    2. ``analyze.py``: Added and analysis file
+    2. ``analyze.py``: Added an analysis file
     3. ``*_job.csv``: Job trace file that was modified to add the lying field. Jobs have the following necessary fields: ``job_id,num_gpu,submit_time,iterations,model_name,duration,interval,liar``
     4. ``log.py``: Log function for the simulator, we modified to provide more robust logging
     5. ``cluster_spec.csv``:  Cluster spec file, including the fields: ``num_switch,num_node_p_switch,num_gpu_p_node,num_cpu_p_node,mem_p_node``

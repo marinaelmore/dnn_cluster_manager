@@ -286,6 +286,7 @@ def dlas_sim_jobs(gputime=False, solve_starvation=0, fss=FLAGS.fss):
 
     if fss:
         fss_df = append_fss_to_job()
+        # queue 0 is the pending queue, start assigning at queue 1
         queue_1 = float(fss_df['fss'].quantile(q=0.3))
         queue_2 = float(fss_df['fss'].quantile(q=0.8))
 
@@ -295,7 +296,6 @@ def dlas_sim_jobs(gputime=False, solve_starvation=0, fss=FLAGS.fss):
             util.print_fn("This cluster is not large enough to run the job")
             break
 
-        #decide which is the next event: start or end  ?
         start_event = None
         start_time = sys.maxsize
         if len(JOBS.job_events) > 0:
